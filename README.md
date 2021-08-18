@@ -3023,3 +3023,256 @@ int main(){
 }
 ```
 
+## 1068**Find More Coins**(多看理解)
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+const int maxn = 10010;
+const int maxv = 110;
+int coin[maxn];
+int n,m;
+int w[maxn],dp[maxv]={0};
+bool choice[maxn][maxv],flag[maxn];
+bool cmp(int a,int b){
+	return a>b;
+}
+int main(){
+	scanf("%d%d",&n,&m);
+	for(int i=1;i<=n;i++){
+		scanf("%d",&w[i]);
+	}
+	sort(w+1,w+n+1,cmp);
+	for(int i=1;i<=n;i++){
+		for(int v=m;v>=w[i];v--){
+			if(dp[v]<=dp[v-w[i]]+w[i]){
+				dp[v] = dp[v-w[i]]+w[i];
+				choice[i][v] = 1;
+			}else{
+				choice[i][v] = 0;
+			}
+		}
+	}
+	if(dp[m]!=m) printf("No Solution");
+	else{
+		int k = n,num=0,v=m;
+		while(k>=0){
+			if(choice[k][v]){
+				flag[k]=true;
+				v-=w[k];
+				num++;
+			}else{
+				flag[k]=false;
+			}
+			k--;
+		}
+		for(int i=n;i>=1;i--){
+			if(flag[i]){
+				printf("%d",w[i]);
+				num--;
+				if(num>0) printf(" ");
+			}
+		}
+	}
+	
+} 
+```
+
+# 分块思想
+
+## **1057 Stack**
+
+*   找某个位置的数据可以分块，
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+const int maxn=100010;
+const int sqrN = 400;
+stack<int> st;
+int block[sqrN];
+int table[maxn];
+
+void peekMedian(int K){
+	int sum=0;
+	int idx=0;
+	while(sum+block[idx]<K){
+		sum+=block[idx++];
+	}
+	int num = sqrN*idx;
+	while(sum+table[num]<K){
+		sum+=table[num++];
+	}
+	printf("%d\n",num);
+}
+
+void Push(int x){
+	st.push(x);
+	int idx = x/sqrN;
+	block[idx]++;
+	table[x]++;
+}
+
+void Pop(){
+	int x = st.top();
+	st.pop();
+	block[x/sqrN]--;
+	table[x]--;
+	printf("%d\n",x);
+}
+int main(){
+	int x,query;
+	memset(block,0,sizeof(block));
+	memset(table,0,sizeof(table));
+	char cmd[20];
+	scanf("%d",&query);
+	for(int i=0;i<query;i++){
+		scanf("%s",cmd);
+		if(strcmp(cmd,"Push")==0){
+			scanf("%d",&x);
+			Push(x);
+		}else if(strcmp(cmd,"Pop")==0){
+			if(st.empty()){
+				printf("Invalid\n");
+			}else{
+				Pop();
+			}
+		}else {
+			if(st.empty()){
+				printf("Invalid\n");
+			}else{
+				int K=st.size();
+				if(K%2==1) K = (K+1)/2;
+				else K /= 2; 
+				peekMedian(K);
+			}
+		}
+	}
+}
+```
+
+# 模拟
+
+## 1105 **Spiral Matrix**（螺旋矩阵）
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+const int maxn = 10009;
+int num[maxn];
+int matrix[maxn][maxn];
+int N;
+bool cmp(int a,int b){
+	return a>b;
+}
+int main(){
+	scanf("%d",&N);
+	for(int i=0;i<N;i++){
+		scanf("%d",&num[i]);
+	}
+	if(N==1){
+		printf("%d",num[0]);
+		return 0;
+	}
+	sort(num,num+N,cmp);
+	int m=(int)ceil(sqrt(N*1.0)),n;
+	while(N%m!=0){
+		m++;
+	}
+	n = N/m;
+	int U=1,D=m,L=1,R=n; 
+	int i=1,j=1,now=0;
+
+//	cout<<i<<" "<<j<<" "<<U<<" "<<D<<" "<<R<<" "<<L<<endl;
+	while(now<N){
+//		cout<<"========\n";
+		while(i<R&&now<N){
+//			cout<<U<<","<<i<<endl;
+			matrix[j][i++] = num[now++];
+		}
+//		cout<<"========\n";
+		while(j<D&&now<N){
+//			cout<<j<<","<<R<<endl;
+			matrix[j++][i] = num[now++];
+		}
+//		cout<<"========\n";
+		while(i>L&&now<N){
+//			cout<<D<<","<<i<<endl;
+			matrix[j][i--] = num[now++];
+		}
+//		cout<<"========\n";
+		while(j>U&&now<N){
+//			cout<<j<<","<<L<<endl;
+			matrix[j--][i] = num[now++];
+		}
+		i++;j++;
+		U++;D--;L++;R--;
+		if(now==N-1){
+			matrix[j][i] = num[now++];
+		}
+		
+	}
+	for(int i=1;i<=m;i++){
+		for(int j=1;j<=n;j++){
+			printf("%d",matrix[i][j]);
+			if(j!=n) printf(" ");
+			else printf("\n");
+		}
+	}
+}
+```
+
+## 1017**Queueing at Bank**
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+int n,k;
+struct Customer{
+	int comeTime,serveTime;
+}c;
+vector<Customer> v;
+int endTime[111];
+int convertTime(int  h,int m,int s){
+	return 3600*h+m*60+s;
+}
+bool cmp(Customer a,Customer b){
+	return a.comeTime<b.comeTime;
+}
+int main(){
+	int total=0;
+	scanf("%d%d",&n,&k);
+	int startTime = convertTime(8,0,0);
+	int edTime = convertTime(17,0,0);
+	for(int i=0;i<n;i++){
+		int h,m,s;
+		int t;
+		scanf("%d:%d:%d %d",&h,&m,&s,&t);
+		c.comeTime = convertTime(h,m,s);
+		if(c.comeTime>edTime) continue; 
+		c.serveTime = t<=60?t*60:3600;
+		v.push_back(c);
+	}
+	sort(v.begin(),v.end(),cmp);
+	for(int i=0;i<k;i++) endTime[i] = startTime; 
+	for(int i=0;i<v.size();i++){
+		int idx=0,minEnd = 0x7fffffff;
+		for(int j=0;j<k;j++){
+			if(endTime[j]<minEnd){
+				minEnd = endTime[j];
+				idx = j;
+			}
+		}
+		if(endTime[idx]<=v[i].comeTime){
+			
+			endTime[idx] = v[i].comeTime + v[i].serveTime; 
+		}else{
+			total =total + endTime[idx] - v[i].comeTime; 
+			endTime[idx] += v[i].serveTime;
+		}
+	}
+	if(v.size()==0) printf("0.0");
+	else printf("%.1f",total/60.0/v.size());
+}
+```
+

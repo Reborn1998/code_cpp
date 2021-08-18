@@ -11,12 +11,9 @@ void printTime(int x){
 	printf("%02d:%02d\n",h,m);
 }
 queue<int> Q[maxn];
-int qend[maxn];
-int custom[maxc];
-int endTime[maxc];
+int custom[maxc],endTime[maxc];
 int main(){
 	scanf("%d%d%d%d",&n,&m,&k,&q);
-	for(int i=0;i<n;i++) qend[i] = convertTime(8,0);
 	for(int i=1;i<=k;i++) scanf("%d",&custom[i]);
 	int t = convertTime(8,0);
 	int i,c; 
@@ -37,30 +34,25 @@ int main(){
 				}
 			}
 			t = minE;
-//			cout<<t<<">"<<endl;
+			if(t>=convertTime(17,0)) break;
 			for(int j=0;j<n;j++){
 				if(endTime[j]==minE){
 					custom[Q[j].front()] = t;
 					Q[j].pop();
-					c = Q[j].front();
-					endTime[j] = t+ custom[c];
+					endTime[j] = t+ custom[Q[j].front()];
 				}
 			}
 		}
-		if(t>=convertTime(17,0)) break;
-//		cout<<"´°¿Ú£º"<<idx<<"eT"<<endTime[idx]<<endl;
 		Q[idx].push(i);	
 		if(Q[idx].size()==1){
-			c = Q[idx].front();
-			endTime[idx] = t+custom[c];
+			endTime[idx] = t+custom[Q[idx].front()];
 		}
 			
 	}
 	for(i;i<=k;i++) custom[i]=-1;
 	for(i=0;i<n;i++){
 		if(!Q[i].empty()){
-			c = Q[i].front();
-			custom[c] = endTime[i];
+			custom[Q[i].front()] = endTime[i];
 			Q[i].pop();
 		}
 		while(!Q[i].empty()){
@@ -72,7 +64,6 @@ int main(){
 		}
 	}
 	for(i=0;i<q;i++){
-		int c;
 		scanf("%d",&c);
 		if(custom[c]==-1) printf("Sorry\n");
 		else printTime(custom[c]);
